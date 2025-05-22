@@ -11,36 +11,74 @@
     }
 
     .page-header {
-        background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+        background: linear-gradient(135deg, #0a1a4a 0%, #0d47a1 100%);
         padding: 2rem;
         border-radius: 15px;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         color: white;
     }
 
     .page-header h2 {
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 700;
         margin: 0;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
 
+    .page-header h2 .badge {
+        font-size: 1.3rem;
+        padding: 0.8rem 1.5rem;
+        margin-left: 1rem;
+        background: #ffd700 !important;
+        color: #000000 !important;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        text-shadow: none;
+        font-weight: 800;
+    }
+
+    .page-header h2 .badge i {
+        color: #000000;
+        margin-right: 0.5rem;
+    }
+
     .badge {
-        font-size: 0.8rem;
-        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
         border-radius: 50px;
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.5px;
     }
 
+    .badge.bg-info {
+        background: #006064 !important;
+        color: white !important;
+    }
+
+    .badge.bg-primary {
+        background: #0a1a4a !important;
+        color: white !important;
+    }
+
+    .badge.bg-success {
+        background: #1b5e20 !important;
+        color: white !important;
+    }
+
+    .badge.bg-danger {
+        background: #b71c1c !important;
+        color: white !important;
+    }
+
     .btn-group .btn {
-        padding: 0.75rem 1.5rem;
+        padding: 0.9rem 1.8rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         border-radius: 10px;
         transition: all 0.3s ease;
+        font-size: 1.1rem;
     }
 
     .btn-group .btn:hover {
@@ -95,21 +133,21 @@
     }
 
     .stats-card .card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2c3e50;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: white;
         margin-bottom: 1rem;
     }
 
     .stats-card .display-4 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #2c3e50;
+        font-size: 3rem;
+        font-weight: 800;
+        color: white;
         margin-bottom: 0;
     }
 
     .stats-card.primary {
-        background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+        background: linear-gradient(135deg, #0a1a4a 0%, #0d47a1 100%);
     }
 
     .stats-card.primary .card-title,
@@ -118,7 +156,7 @@
     }
 
     .stats-card.success {
-        background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
     }
 
     .stats-card.success .card-title,
@@ -137,34 +175,51 @@
         padding: 2rem;
     }
 
+    .carousel-item.facturado {
+        background: linear-gradient(135deg, #0a1a4a 0%, #0d47a1 100%);
+        border-radius: 15px;
+    }
+
+    .carousel-item.abonado {
+        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+        border-radius: 15px;
+    }
+
+    .carousel-item.por-cobrar {
+        background: linear-gradient(135deg, #b71c1c 0%, #c62828 100%);
+        border-radius: 15px;
+    }
+
     .carousel-item .badge {
-        font-size: 1rem;
-        padding: 0.5rem 1.5rem;
+        font-size: 1.2rem;
+        padding: 0.6rem 1.8rem;
         margin-bottom: 1rem;
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: white !important;
+        border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
     .carousel-item .display-6 {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #2c3e50;
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
     }
 
     .carousel-control-prev,
     .carousel-control-next {
         width: 40px;
         height: 40px;
-        background: rgba(0,0,0,0.1);
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 50%;
         top: 50%;
         transform: translateY(-50%);
+        border: 2px solid rgba(255, 255, 255, 0.3);
     }
 
-    .carousel-control-prev {
-        left: 10px;
-    }
-
-    .carousel-control-next {
-        right: 10px;
+    .carousel-control-prev:hover,
+    .carousel-control-next:hover {
+        background: rgba(255, 255, 255, 0.3);
     }
 
     .table-card {
@@ -177,7 +232,7 @@
     }
 
     .table-card .card-header {
-        background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+        background: linear-gradient(135deg, #0a1a4a 0%, #0d47a1 100%);
         color: white;
         padding: 1.5rem;
         border-bottom: none;
@@ -186,7 +241,7 @@
     .table-card .card-header h4 {
         margin: 0;
         font-weight: 600;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
     }
 
     .table {
@@ -194,21 +249,23 @@
     }
 
     .table thead th {
-        background: #f8f9fa;
-        color: #1a237e;
-        font-weight: 600;
+        background: #e8eaf6;
+        color: #0a1a4a;
+        font-weight: 700;
         text-transform: uppercase;
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         letter-spacing: 0.5px;
-        padding: 1rem;
-        border-bottom: 2px solid #dee2e6;
+        padding: 1.2rem;
+        border-bottom: 2px solid #0d47a1;
     }
 
     .table tbody td {
-        padding: 1rem;
+        padding: 1.2rem;
         vertical-align: middle;
         border-bottom: 1px solid #dee2e6;
-        color: #2c3e50;
+        color: #1a237e;
+        font-size: 1.1rem;
+        font-weight: 500;
     }
 
     .table tbody tr {
@@ -233,18 +290,20 @@
     }
 
     .btn-info {
-        background: linear-gradient(135deg, #00bcd4, #0097a7);
+        background: linear-gradient(135deg, #006064, #0097a7);
         border: none;
+        color: white;
     }
 
     .btn-success {
-        background: linear-gradient(135deg, #4caf50, #388e3c);
+        background: linear-gradient(135deg, #1b5e20, #2e7d32);
         border: none;
+        color: white;
     }
 
     .text-danger {
-        color: #d32f2f !important;
-        font-weight: 600;
+        color: #b71c1c !important;
+        font-weight: 700;
     }
 
     @media (max-width: 768px) {
@@ -308,7 +367,9 @@
         <div class="page-header d-flex justify-content-between align-items-center">
             <h2>
                 <i class="fas fa-chart-bar me-2"></i>Reporte de Clientes
-                <span class="badge bg-info text-dark ms-2">Tasa BCV: {{ tasa_bcv|es_number }} Bs/USD</span>
+                <span class="badge">
+                    <i class="fas fa-dollar-sign"></i>Tasa BCV: {{ tasa_bcv|es_number }} Bs/USD
+                </span>
             </h2>
             <div class="btn-group">
                 <a href="{{ url_for('mostrar_clientes') }}" class="btn btn-secondary">
@@ -375,16 +436,16 @@
                 <div class="carousel-card">
                     <div id="slider-general" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner">
-                            <div class="carousel-item active text-center">
-                                <span class="badge bg-primary">Facturado</span>
+                            <div class="carousel-item facturado active text-center">
+                                <span class="badge">Facturado</span>
                                 <div class="display-6">${{ '%.2f' % total_facturado_general }}</div>
                             </div>
-                            <div class="carousel-item text-center">
-                                <span class="badge bg-success">Abonado</span>
+                            <div class="carousel-item abonado text-center">
+                                <span class="badge">Abonado</span>
                                 <div class="display-6">${{ '%.2f' % total_abonado_general }}</div>
                             </div>
-                            <div class="carousel-item text-center">
-                                <span class="badge bg-danger">Por Cobrar</span>
+                            <div class="carousel-item por-cobrar text-center">
+                                <span class="badge">Por Cobrar</span>
                                 <div class="display-6">${{ '%.2f' % total_cobrar }}</div>
                             </div>
                         </div>

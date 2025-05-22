@@ -77,13 +77,13 @@ window.addEventListener('DOMContentLoaded', function() {
 <div class="container mt-4">
     <div class="bitacora-header mb-4">
         <h4 class="mb-0"><i class="fas fa-book"></i> Bitácora del Sistema</h4>
-            {% if lineas %}
-            <form method="POST" action="{{ url_for('limpiar_bitacora') }}" onsubmit="return confirm('¿Seguro que deseas borrar toda la bitácora?');">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Limpiar Bitácora</button>
-            </form>
-            {% endif %}
-        </div>
+        {% if lineas %}
+        <form method="POST" action="{{ url_for('limpiar_bitacora') }}" onsubmit="return confirm('¿Seguro que deseas borrar toda la bitácora?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Limpiar Bitácora</button>
+        </form>
+        {% endif %}
+    </div>
     <div class="bitacora-card">
         <div class="card-body" style="max-height: 500px; overflow-y: auto;">
             <form method="get" class="row g-2 mb-3">

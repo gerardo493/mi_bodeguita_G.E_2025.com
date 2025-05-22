@@ -307,7 +307,7 @@
                     <h2><i class="fas fa-money-bill-wave me-2"></i>Reporte de Cuentas por Cobrar</h2>
                 </div>
                 <div class="col-md-4 text-end">
-        <div class="btn-group">
+                    <div class="btn-group">
                         <a href="{{ url_for('mostrar_cuentas_por_cobrar', estado='por_cobrar') }}" class="btn btn-outline-primary {% if filtro == 'por_cobrar' %}active{% endif %}">Por Cobrar</a>
                         <a href="{{ url_for('mostrar_cuentas_por_cobrar', estado='cobrado') }}" class="btn btn-outline-success {% if filtro == 'cobrado' %}active{% endif %}">Cobradas</a>
                         <a href="{{ url_for('mostrar_cuentas_por_cobrar', estado='todas') }}" class="btn btn-outline-secondary {% if filtro == 'todas' %}active{% endif %}">Todas</a>
@@ -319,55 +319,55 @@
             </div>
         </div>
 
-    <!-- Estadísticas -->
-    <div class="row mb-4">
-        <div class="col-md-3">
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-3">
                 <div class="stats-card primary">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-dollar-sign"></i>
                         </div>
                         <div class="stats-value">${{ total_por_cobrar_usd|es_number }}</div>
                         <div class="stats-label">Total por Cobrar (USD)</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
+            <div class="col-md-3">
                 <div class="stats-card info">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-bolivar-sign"></i>
                         </div>
                         <div class="stats-value">{{ total_por_cobrar_bs|es_number }}</div>
                         <div class="stats-label">Total por Cobrar (Bs)</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-2">
+            <div class="col-md-2">
                 <div class="stats-card success">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-file-invoice"></i>
                         </div>
                         <div class="stats-value">{{ cantidad_facturas }}</div>
                         <div class="stats-label">Facturas Pendientes</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-2">
+            <div class="col-md-2">
                 <div class="stats-card warning">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stats-value">{{ cantidad_clientes }}</div>
                         <div class="stats-label">Clientes Deudores</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-2">
+            <div class="col-md-2">
                 <div class="stats-card secondary">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-chart-line"></i>
                         </div>
@@ -379,43 +379,43 @@
         </div>
 
         <!-- Top Deudores y Tasa BCV -->
-    <div class="row mb-4">
-        <div class="col-md-6">
+        <div class="row mb-4">
+            <div class="col-md-6">
                 <div class="table-card">
                     <div class="card-header danger">
                         <h5><i class="fas fa-exclamation-triangle me-2"></i>Top 5 Clientes Deudores</h5>
-                </div>
-                <div class="card-body">
+                    </div>
+                    <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th class="text-end">Monto Pendiente (USD)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for d in top_deudores %}
-                            <tr>
-                                <td>{{ d.cliente }}</td>
-                                <td class="text-end">${{ d.monto|es_number }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                <thead>
+                                    <tr>
+                                        <th>Cliente</th>
+                                        <th class="text-end">Monto Pendiente (USD)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for d in top_deudores %}
+                                    <tr>
+                                        <td>{{ d.cliente }}</td>
+                                        <td class="text-end">${{ d.monto|es_number }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
+            <div class="col-md-6">
                 <div class="stats-card">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-exchange-alt"></i>
                         </div>
                         <div class="stats-value">{{ tasa_bcv|default('Cargando...', true)|es_number }}</div>
                         <div class="stats-label">Tasa BCV (Bs/USD)</div>
-                    <small class="text-muted">Última actualización: {{ ultima_actualizacion_bcv|default('', true) }}</small>
+                        <small class="text-muted">Última actualización: {{ ultima_actualizacion_bcv|default('', true) }}</small>
                     </div>
                 </div>
             </div>
@@ -425,51 +425,51 @@
         <div class="table-card">
             <div class="card-header">
                 <h4><i class="fas fa-list me-2"></i>Lista de Cuentas por Cobrar</h4>
-    </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Número Factura</th>
-                            <th>Cliente</th>
-                            <th>Total (USD)</th>
-                            <th>Abonado (USD)</th>
-                            <th>Saldo Pendiente (USD)</th>
-                            <th>Estado</th>
-                            <th>Fecha</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for id, cuenta in cuentas.items() %}
-                        <tr>
-                            <td>{{ id }}</td>
-                            <td>{{ cuenta.numero }}</td>
-                            <td>{{ cuenta.cliente_nombre }}</td>
-                            <td>${{ cuenta.total_usd|es_number }}</td>
-                            <td>${{ cuenta.abonado_usd|es_number }}</td>
-                            <td>${{ cuenta.saldo_pendiente|es_number }}</td>
-                            <td>
-                                {% if cuenta.estado == 'por_cobrar' %}
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Número Factura</th>
+                                <th>Cliente</th>
+                                <th>Total (USD)</th>
+                                <th>Abonado (USD)</th>
+                                <th>Saldo Pendiente (USD)</th>
+                                <th>Estado</th>
+                                <th>Fecha</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for id, cuenta in cuentas.items() %}
+                            <tr>
+                                <td>{{ id }}</td>
+                                <td>{{ cuenta.numero }}</td>
+                                <td>{{ cuenta.cliente_nombre }}</td>
+                                <td>${{ cuenta.total_usd|es_number }}</td>
+                                <td>${{ cuenta.abonado_usd|es_number }}</td>
+                                <td>${{ cuenta.saldo_pendiente|es_number }}</td>
+                                <td>
+                                    {% if cuenta.estado == 'por_cobrar' %}
                                         <span class="badge badge-warning">Por Cobrar</span>
-                                {% elif cuenta.estado == 'cobrado' %}
+                                    {% elif cuenta.estado == 'cobrado' %}
                                         <span class="badge badge-success">Cobrada</span>
-                                {% else %}
+                                    {% else %}
                                         <span class="badge badge-secondary">{{ cuenta.estado }}</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ cuenta.fecha }}</td>
-                            <td>
-                                <a href="{{ url_for('ver_factura', id=cuenta.factura_id) }}" class="btn btn-sm btn-info" title="Ver Factura">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                    {% endif %}
+                                </td>
+                                <td>{{ cuenta.fecha }}</td>
+                                <td>
+                                    <a href="{{ url_for('ver_factura', id=cuenta.factura_id) }}" class="btn btn-sm btn-info" title="Ver Factura">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

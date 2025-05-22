@@ -283,17 +283,17 @@
                     <h2><i class="fas fa-boxes me-2"></i>Reporte de Inventario</h2>
                 </div>
                 <div class="col-md-4 text-end">
-        <div class="btn-group">
-            <a href="{{ url_for('mostrar_inventario') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
-            </a>
-            <button onclick="window.print()" class="btn btn-primary">
+                    <div class="btn-group">
+                        <a href="{{ url_for('mostrar_inventario') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Inventario
+                        </a>
+                        <button onclick="window.print()" class="btn btn-primary">
                             <i class="fas fa-print me-2"></i>Imprimir
-            </button>
+                        </button>
                     </div>
                 </div>
+            </div>
         </div>
-    </div>
 
         <!-- Encabezado de la Empresa -->
         <div class="company-header">
@@ -310,179 +310,179 @@
                 <div class="col-md-2 text-end">
                     <p><strong>Fecha:</strong> {{ fecha_actual.strftime('%d/%m/%Y') }}</p>
                     <p><strong>Tasa BCV:</strong> {{ tasa_bcv }} Bs/USD</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Resumen General -->
-    <div class="row mb-4">
-        <div class="col-md-3">
+        <!-- Resumen General -->
+        <div class="row mb-4">
+            <div class="col-md-3">
                 <div class="stats-card primary">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-boxes"></i>
                         </div>
                         <div class="stats-value">{{ total_productos|es_number(0) }}</div>
                         <div class="stats-label">Total Productos</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
+            <div class="col-md-3">
                 <div class="stats-card success">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-cubes"></i>
                         </div>
                         <div class="stats-value">{{ total_stock|es_number(0) }}</div>
                         <div class="stats-label">Total Stock</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
+            <div class="col-md-3">
                 <div class="stats-card info">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-dollar-sign"></i>
                         </div>
                         <div class="stats-value">${{ valor_total|es_number }}</div>
                         <div class="stats-label">Valor Total USD</div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3">
+            <div class="col-md-3">
                 <div class="stats-card warning">
-                <div class="card-body">
+                    <div class="card-body">
                         <div class="stats-icon">
                             <i class="fas fa-bolivar-sign"></i>
                         </div>
                         <div class="stats-value">{{ (valor_total * tasa_bcv)|es_number }}</div>
                         <div class="stats-label">Valor Total Bs</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Productos por Categoría -->
+        <!-- Productos por Categoría -->
         <div class="table-card">
             <div class="card-header">
                 <h4><i class="fas fa-tags me-2"></i>Productos por Categoría</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
                         <thead>
-                        <tr>
-                            <th style="width: 18%">Categoría</th>
-                            <th style="width: 10%">Total Productos</th>
-                            <th style="width: 10%">Stock Total</th>
-                            <th style="width: 12%">Valor Total USD</th>
-                            <th style="width: 12%">Valor Total Bs</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for categoria, datos in productos_por_categoria.items() %}
-                        <tr>
-                            <td>{{ categoria }}</td>
-                            <td class="text-end">{{ datos.productos|length }}</td>
-                            <td class="text-end">{{ datos.cantidad|es_number(0) }}</td>
-                            <td class="text-end">${{ datos.valor|es_number }}</td>
-                            <td class="text-end">{{ (datos.valor * tasa_bcv)|es_number }} Bs</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                            <tr>
+                                <th style="width: 18%">Categoría</th>
+                                <th style="width: 10%">Total Productos</th>
+                                <th style="width: 10%">Stock Total</th>
+                                <th style="width: 12%">Valor Total USD</th>
+                                <th style="width: 12%">Valor Total Bs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for categoria, datos in productos_por_categoria.items() %}
+                            <tr>
+                                <td>{{ categoria }}</td>
+                                <td class="text-end">{{ datos.productos|length }}</td>
+                                <td class="text-end">{{ datos.cantidad|es_number(0) }}</td>
+                                <td class="text-end">${{ datos.valor|es_number }}</td>
+                                <td class="text-end">{{ (datos.valor * tasa_bcv)|es_number }} Bs</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Productos con Bajo Stock -->
+        <!-- Productos con Bajo Stock -->
         <div class="table-card">
             <div class="card-header danger">
                 <h4><i class="fas fa-exclamation-triangle me-2"></i>Productos con Bajo Stock</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
                         <thead>
-                        <tr>
-                            <th style="width: 10%">ID</th>
-                            <th style="width: 25%">Nombre</th>
-                            <th style="width: 15%">Categoría</th>
-                            <th style="width: 10%">Stock</th>
-                            <th style="width: 10%">Precio USD</th>
-                            <th style="width: 10%">Precio Bs</th>
-                            <th style="width: 10%">Valor USD</th>
-                            <th style="width: 10%">Valor Bs</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for id, producto in productos_bajo_stock.items() %}
-                        <tr>
-                            <td>{{ id }}</td>
-                            <td>{{ producto.nombre }}</td>
-                            <td>{{ producto.categoria }}</td>
-                            <td class="text-end">
+                            <tr>
+                                <th style="width: 10%">ID</th>
+                                <th style="width: 25%">Nombre</th>
+                                <th style="width: 15%">Categoría</th>
+                                <th style="width: 10%">Stock</th>
+                                <th style="width: 10%">Precio USD</th>
+                                <th style="width: 10%">Precio Bs</th>
+                                <th style="width: 10%">Valor USD</th>
+                                <th style="width: 10%">Valor Bs</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for id, producto in productos_bajo_stock.items() %}
+                            <tr>
+                                <td>{{ id }}</td>
+                                <td>{{ producto.nombre }}</td>
+                                <td>{{ producto.categoria }}</td>
+                                <td class="text-end">
                                     <span class="badge badge-danger">{{ producto.cantidad|es_number(0) }}</span>
-                            </td>
-                            <td class="text-end">${{ producto.precio|es_number }}</td>
-                            <td class="text-end">{{ (producto.precio * tasa_bcv)|es_number }} Bs</td>
-                            <td class="text-end">${{ (producto.cantidad * producto.precio)|es_number }}</td>
-                            <td class="text-end">{{ (producto.cantidad * producto.precio * tasa_bcv)|es_number }} Bs</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                                </td>
+                                <td class="text-end">${{ producto.precio|es_number }}</td>
+                                <td class="text-end">{{ (producto.precio * tasa_bcv)|es_number }} Bs</td>
+                                <td class="text-end">${{ (producto.cantidad * producto.precio)|es_number }}</td>
+                                <td class="text-end">{{ (producto.cantidad * producto.precio * tasa_bcv)|es_number }} Bs</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Lista Completa de Productos -->
+        <!-- Lista Completa de Productos -->
         <div class="table-card">
             <div class="card-header">
                 <h4><i class="fas fa-list me-2"></i>Lista Completa de Productos</h4>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th style="width: 8%">ID</th>
-                            <th style="width: 22%" class="text-start">Nombre</th>
-                            <th style="width: 13%">Categoría</th>
-                            <th style="width: 8%">Stock</th>
-                            <th style="width: 10%">Precio USD</th>
-                            <th style="width: 10%">Precio Bs</th>
-                            <th style="width: 10%">Valor USD</th>
-                            <th style="width: 10%">Valor Bs</th>
-                            <th style="width: 9%">Última Entrada</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for id, producto in inventario.items() %}
-                        <tr>
-                            <td>{{ id }}</td>
-                            <td class="text-start">{{ producto.nombre }}</td>
-                            <td>{{ producto.categoria }}</td>
-                            <td class="text-end">
-                                    <span class="badge {% if producto.cantidad > 0 %}badge-success{% else %}badge-danger{% endif %}">
-                                    {{ producto.cantidad|es_number(0) }}
-                                </span>
-                            </td>
-                            <td class="text-end">${{ producto.precio|es_number }}</td>
-                            <td class="text-end">{{ (producto.precio * tasa_bcv)|es_number }} Bs</td>
-                            <td class="text-end">${{ (producto.cantidad * producto.precio)|es_number }}</td>
-                            <td class="text-end">{{ (producto.cantidad * producto.precio * tasa_bcv)|es_number }} Bs</td>
-                            <td class="text-center">
-                                {% if producto.ultima_entrada %}
-                                    {{ producto.ultima_entrada|string|replace('T', ' ')|datetimeformat('%d/%m/%Y') }}
-                                {% else %}N/A{% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
-        </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 8%">ID</th>
+                                <th style="width: 22%" class="text-start">Nombre</th>
+                                <th style="width: 13%">Categoría</th>
+                                <th style="width: 8%">Stock</th>
+                                <th style="width: 10%">Precio USD</th>
+                                <th style="width: 10%">Precio Bs</th>
+                                <th style="width: 10%">Valor USD</th>
+                                <th style="width: 10%">Valor Bs</th>
+                                <th style="width: 9%">Última Entrada</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for id, producto in inventario.items() %}
+                            <tr>
+                                <td>{{ id }}</td>
+                                <td class="text-start">{{ producto.nombre }}</td>
+                                <td>{{ producto.categoria }}</td>
+                                <td class="text-end">
+                                    <span class="badge {% if producto.cantidad > 0 %}badge-success{% else %}badge-danger{% endif %}">
+                                        {{ producto.cantidad|es_number(0) }}
+                                    </span>
+                                </td>
+                                <td class="text-end">${{ producto.precio|es_number }}</td>
+                                <td class="text-end">{{ (producto.precio * tasa_bcv)|es_number }} Bs</td>
+                                <td class="text-end">${{ (producto.cantidad * producto.precio)|es_number }}</td>
+                                <td class="text-end">{{ (producto.cantidad * producto.precio * tasa_bcv)|es_number }} Bs</td>
+                                <td class="text-center">
+                                    {% if producto.ultima_entrada %}
+                                        {{ producto.ultima_entrada|string|replace('T', ' ')|datetimeformat('%d/%m/%Y') }}
+                                    {% else %}N/A{% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         {% if tasa_bcv is not defined or tasa_bcv == 0 %}

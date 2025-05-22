@@ -84,7 +84,7 @@
     "3": {
         "nombre": "ARANDANO NEGRO X 60 CAP",
         "precio": 3.0,
-        "cantidad": 7,
+        "cantidad": 0,
         "categoria": "Protector Ocular",
         "ruta_imagen": "",
         "ultima_entrada": "2025-05-17 12:29:57",
@@ -385,7 +385,7 @@
     "15": {
         "nombre": "COLA DE CABALLO X 60 CAP",
         "precio": 3.0,
-        "cantidad": 487,
+        "cantidad": 400,
         "categoria": "Calculo Renal",
         "ruta_imagen": "",
         "ultima_entrada": "2025-05-17 12:29:57",

@@ -62,14 +62,14 @@
                 </a>
                 <a href="{{ url_for('nueva_cotizacion') }}" class="btn btn-success fw-bold">
                     <i class="fas fa-plus me-2"></i>NUEVA COTIZACIÓN
-        </a>
-    </div>
-</div>
+                </a>
+            </div>
+        </div>
         <div class="cotizaciones-block">
-        <div class="table-responsive">
+            <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
-                    <tr>
+                        <tr>
                             <th><i class="fas fa-hashtag me-2"></i>Número</th>
                             <th><i class="fas fa-calendar me-2"></i>Fecha</th>
                             <th><i class="fas fa-clock me-2"></i>Hora</th>
@@ -78,14 +78,14 @@
                             <th><i class="fas fa-clock me-2"></i>Válido hasta</th>
                             <th><i class="fas fa-info-circle me-2"></i>Estado</th>
                             <th><i class="fas fa-cogs me-2"></i>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+                        </tr>
+                    </thead>
+                    <tbody>
                         {% if cotizaciones %}
-                    {% for id, cotizacion in cotizaciones.items() %}
-                    <tr>
-                        <td>{{ cotizacion.numero }}</td>
-                        <td>{{ cotizacion.fecha }}</td>
+                            {% for id, cotizacion in cotizaciones.items() %}
+                            <tr>
+                                <td>{{ cotizacion.numero }}</td>
+                                <td>{{ cotizacion.fecha }}</td>
                                 <td>{{ cotizacion.hora }}</td>
                                 <td>
                                     {{ clientes[cotizacion.cliente_id].nombre if cotizacion.cliente_id in clientes else cotizacion.cliente_id }}<br>
@@ -99,32 +99,32 @@
                                         {% endif %}
                                     </span>
                                 </td>
-                        <td>{{ cotizacion.total }}</td>
-                        <td>{{ cotizacion.validez }}</td>
-                        <td>
-                            <span class="badge {% if cotizacion.validez > now %}bg-success{% else %}bg-danger{% endif %}">
-                                {% if cotizacion.validez > now %}Válida{% else %}Vencida{% endif %}
-                            </span>
-                        </td>
-                        <td>
+                                <td>{{ cotizacion.total }}</td>
+                                <td>{{ cotizacion.validez }}</td>
+                                <td>
+                                    <span class="badge {% if cotizacion.validez > now %}bg-success{% else %}bg-danger{% endif %}">
+                                        {% if cotizacion.validez > now %}Válida{% else %}Vencida{% endif %}
+                                    </span>
+                                </td>
+                                <td>
                                     <div class="btn-group" role="group">
                                         <a href="{{ url_for('editar_cotizacion', id=id) }}" class="btn btn-sm btn-warning text-white shadow-sm" title="Editar">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                            <i class="fas fa-edit"></i>
+                                        </a>
                                         <a href="{{ url_for('convertir_cotizacion_a_factura', id=id) }}" class="btn btn-sm btn-success shadow-sm" title="Convertir a Factura">
-                                    <i class="fas fa-file-invoice"></i>
-                                </a>
+                                            <i class="fas fa-file-invoice"></i>
+                                        </a>
                                         <a href="{{ url_for('imprimir_cotizacion', id=id) }}" class="btn btn-sm btn-info text-white shadow-sm" title="Imprimir" target="_blank">
-                                    <i class="fas fa-print"></i>
-                                </a>
+                                            <i class="fas fa-print"></i>
+                                        </a>
                                         <button type="button" class="btn btn-sm btn-danger shadow-sm" title="Eliminar"
-                                        onclick="confirmarEliminar('{{ id }}', '{{ cotizacion.numero }}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
+                                                onclick="confirmarEliminar('{{ id }}', '{{ cotizacion.numero }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
                         {% else %}
                             <tr>
                                 <td colspan="8" class="text-center">
@@ -134,8 +134,8 @@
                                 </td>
                             </tr>
                         {% endif %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

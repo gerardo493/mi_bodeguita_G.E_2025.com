@@ -239,10 +239,10 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             
             <div class="form-card">
-            <div class="card-header">
+                <div class="card-header">
                     <h4><i class="fas fa-info-circle me-2"></i>Información General</h4>
-            </div>
-            <div class="card-body">
+                </div>
+                <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <label for="numero_cotizacion" class="form-label">Número de Cotización</label>
@@ -259,16 +259,16 @@
                     </div>
                     <div class="row mt-3">
                         <div class="col-md-8">
-                        <label for="cliente_id" class="form-label">Cliente</label>
-                        <select class="form-select" id="cliente_id" name="cliente_id" required>
-                            <option value="">Seleccione un cliente</option>
-                            {% for id, cliente in clientes.items() %}
+                            <label for="cliente_id" class="form-label">Cliente</label>
+                            <select class="form-select" id="cliente_id" name="cliente_id" required>
+                                <option value="">Seleccione un cliente</option>
+                                {% for id, cliente in clientes.items() %}
                                 <option value="{{ id }}" {% if cotizacion and cotizacion.cliente_id == id %}selected{% endif %}>
                                     {{ cliente.nombre }} — {{ id }}
                                 </option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                                {% endfor %}
+                            </select>
+                        </div>
                         <div class="col-md-4">
                             <label for="validez" class="form-label">Validez (días)</label>
                             <input type="number" class="form-control" id="validez" name="validez" min="1" value="{{ cotizacion.validez if cotizacion else '3' }}" required>
@@ -278,87 +278,87 @@
             </div>
 
             <div class="productos-card">
-                        <div class="card-header">
+                <div class="card-header">
                     <h5><i class="fas fa-box me-2"></i>Productos</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Producto</label>
                         </div>
-                        <div class="card-body">
-                            <div class="row mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Cantidad</label>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Precio (USD)</label>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Total (USD)</label>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label fw-bold">Acción</label>
+                        </div>
+                    </div>
+                    <div id="productos-container">
+                        {% if cotizacion and cotizacion.productos and cotizacion.cantidades %}
+                            {% for prod_id, cantidad in zip(cotizacion.productos, cotizacion.cantidades) %}
+                            <div class="row mb-3 producto-item">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-bold">Producto</label>
+                                    <select class="form-select producto-select" name="productos[]" required>
+                                        <option value="">Seleccione un producto</option>
+                                        {% for id, producto in inventario.items() %}
+                                        <option value="{{ id }}" data-precio="{{ producto.precio }}" {% if id == prod_id %}selected{% endif %}>
+                                            {{ producto.nombre }} - ${{ producto.precio }} (Stock: {{ producto.cantidad }})
+                                        </option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label fw-bold">Cantidad</label>
+                                    <input type="number" class="form-control cantidad-input" name="cantidades[]" min="1" value="{{ cantidad }}" required>
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label fw-bold">Precio (USD)</label>
+                                    <input type="number" step="0.01" class="form-control precio-input" name="precios[]" min="0" value="{{ cotizacion.precios[loop.index0] if cotizacion.precios else (inventario[prod_id].precio if prod_id in inventario else '') }}" required>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label fw-bold">Total (USD)</label>
+                                    <input type="text" class="form-control subtotal" readonly>
                                 </div>
                                 <div class="col-md-1">
-                                    <label class="form-label fw-bold">Acción</label>
+                                    <button type="button" class="btn btn-danger btn-sm remove-producto"><i class="fas fa-times"></i></button>
                                 </div>
                             </div>
-                            <div id="productos-container">
-                                {% if cotizacion and cotizacion.productos and cotizacion.cantidades %}
-                                    {% for prod_id, cantidad in zip(cotizacion.productos, cotizacion.cantidades) %}
-                                <div class="row mb-3 producto-item">
-                                    <div class="col-md-4">
-                                        <select class="form-select producto-select" name="productos[]" required>
-                                            <option value="">Seleccione un producto</option>
-                                            {% for id, producto in inventario.items() %}
-                                            <option value="{{ id }}" data-precio="{{ producto.precio }}" {% if id == prod_id %}selected{% endif %}>
-                                                {{ producto.nombre }} - ${{ producto.precio }} (Stock: {{ producto.cantidad }})
-                                            </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="number" class="form-control cantidad-input" name="cantidades[]" min="1" value="{{ cantidad }}" required>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="number" step="0.01" class="form-control precio-input" name="precios[]" min="0" value="{{ cotizacion.precios[loop.index0] if cotizacion.precios else (inventario[prod_id].precio if prod_id in inventario else '') }}" required>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control subtotal" readonly>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-danger btn-sm remove-producto"><i class="fas fa-times"></i></button>
-                                    </div>
-                                </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="row mb-3 producto-item">
+                            <div class="col-md-4">
+                                <select class="form-select producto-select" name="productos[]" required>
+                                    <option value="">Seleccione un producto</option>
+                                    {% for id, producto in inventario.items() %}
+                                    <option value="{{ id }}" data-precio="{{ producto.precio }}">
+                                        {{ producto.nombre }} - ${{ producto.precio }} (Stock: {{ producto.cantidad }})
+                                    </option>
                                     {% endfor %}
-                                {% else %}
-                                <div class="row mb-3 producto-item">
-                                    <div class="col-md-4">
-                                        <select class="form-select producto-select" name="productos[]" required>
-                                            <option value="">Seleccione un producto</option>
-                                            {% for id, producto in inventario.items() %}
-                                            <option value="{{ id }}" data-precio="{{ producto.precio }}">
-                                                {{ producto.nombre }} - ${{ producto.precio }} (Stock: {{ producto.cantidad }})
-                                            </option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="number" class="form-control cantidad-input" name="cantidades[]" min="1" value="1" required>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <input type="number" step="0.01" class="form-control precio-input" name="precios[]" min="0" required>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <input type="text" class="form-control subtotal" readonly>
-                                    </div>
-                                    <div class="col-md-1">
-                                        <button type="button" class="btn btn-danger btn-sm remove-producto"><i class="fas fa-times"></i></button>
-                                    </div>
-                                </div>
-                                {% endif %}
+                                </select>
                             </div>
+                            <div class="col-md-2">
+                                <input type="number" class="form-control cantidad-input" name="cantidades[]" min="1" value="1" required>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="number" step="0.01" class="form-control precio-input" name="precios[]" min="0" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="text" class="form-control subtotal" readonly>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm remove-producto"><i class="fas fa-times"></i></button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
                     <button type="button" class="btn btn-success" id="agregar-producto">
                         <i class="fas fa-plus me-2"></i>Agregar Producto
                     </button>
-                        </div>
-                    </div>
+                </div>
+            </div>
 
             <div class="form-card">
                 <div class="card-header">
@@ -400,38 +400,38 @@
                             <div class="totales-card">
                                 <div class="card-body">
                                     <div class="row">
-                        <div class="col-md-6">
+                                        <div class="col-md-6">
                                             <div class="input-group mb-3">
-                                <span class="input-group-text">Subtotal USD</span>
-                                <input type="text" class="form-control" id="subtotal_usd" name="subtotal_usd" readonly>
+                                                <span class="input-group-text">Subtotal USD</span>
+                                                <input type="text" class="form-control" id="subtotal_usd" name="subtotal_usd" readonly>
                                             </div>
                                             <div class="input-group mb-3">
-                                <span class="input-group-text">Subtotal Bs</span>
-                                <input type="text" class="form-control" id="subtotal_bs" name="subtotal_bs" readonly>
-                            </div>
+                                                <span class="input-group-text">Subtotal Bs</span>
+                                                <input type="text" class="form-control" id="subtotal_bs" name="subtotal_bs" readonly>
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="input-group mb-3">
-                                <span class="input-group-text">Descuento</span>
-                                <input type="text" class="form-control" id="descuento_total" name="descuento_total" readonly>
+                                                <span class="input-group-text">Descuento</span>
+                                                <input type="text" class="form-control" id="descuento_total" name="descuento_total" readonly>
                                             </div>
                                             <div class="input-group mb-3">
-                                <span class="input-group-text">IVA</span>
-                                <input type="text" class="form-control" id="iva_total" name="iva_total" readonly>
-                            </div>
+                                                <span class="input-group-text">IVA</span>
+                                                <input type="text" class="form-control" id="iva_total" name="iva_total" readonly>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="row mt-3">
                                         <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text">Total USD</span>
-                                <input type="text" class="form-control" id="total_usd" name="total_usd" readonly>
+                                            <div class="input-group">
+                                                <span class="input-group-text">Total USD</span>
+                                                <input type="text" class="form-control" id="total_usd" name="total_usd" readonly>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="input-group">
-                                <span class="input-group-text">Total Bs</span>
-                                <input type="text" class="form-control" id="total_bs" name="total_bs" readonly>
+                                                <span class="input-group-text">Total Bs</span>
+                                                <input type="text" class="form-control" id="total_bs" name="total_bs" readonly>
                                             </div>
                                         </div>
                                     </div>
@@ -443,14 +443,14 @@
             </div>
 
             <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i>{{ 'Actualizar Cotización' if cotizacion else 'Guardar Cotización' }}
-                        </button>
-                        <a href="{{ url_for('mostrar_cotizaciones') }}" class="btn btn-secondary">
-                            <i class="fas fa-times me-2"></i>Cancelar
-                        </a>
-                    </div>
-                </form>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>{{ 'Actualizar Cotización' if cotizacion else 'Guardar Cotización' }}
+                </button>
+                <a href="{{ url_for('mostrar_cotizaciones') }}" class="btn btn-secondary">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </a>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
@@ -580,26 +580,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Actualizar eventos
     function actualizarEventos() {
         document.querySelectorAll('.producto-item').forEach(item => {
-        const select = item.querySelector('.producto-select');
+            const select = item.querySelector('.producto-select');
             const cantidadInput = item.querySelector('.cantidad-input');
-        const precioInput = item.querySelector('.precio-input');
+            const precioInput = item.querySelector('.precio-input');
             const removeBtn = item.querySelector('.remove-producto');
 
-        select.addEventListener('change', function() {
+            select.addEventListener('change', function() {
                 const option = this.options[this.selectedIndex];
                 if (option.value) {
                     precioInput.value = option.dataset.precio;
-            calcularTotales();
+                    calcularTotales();
                 }
-        });
+            });
 
             cantidadInput.addEventListener('input', calcularTotales);
-        precioInput.addEventListener('input', calcularTotales);
+            precioInput.addEventListener('input', calcularTotales);
 
             removeBtn.addEventListener('click', function() {
-            if (document.querySelectorAll('.producto-item').length > 1) {
-                item.remove();
-                calcularTotales();
+                if (document.querySelectorAll('.producto-item').length > 1) {
+                    item.remove();
+                    calcularTotales();
                 } else {
                     alert('Debe haber al menos un producto en la cotización');
                 }

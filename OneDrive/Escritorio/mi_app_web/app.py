@@ -181,8 +181,10 @@ def obtener_estadisticas():
     facturas_mes = sum(1 for f in facturas.values() if datetime.strptime(f['fecha'], '%Y-%m-%d').month == mes_actual)
     total_cobrar_usd = 0
     for f in facturas.values():
-        saldo = float(f.get('saldo_pendiente', 0))
-        if saldo > 0:
+        total_facturado = float(f.get('total_usd', 0))
+        total_abonado = float(f.get('total_abonado', 0))
+        saldo = max(0, total_facturado - total_abonado)
+        if saldo > 0:  # Considerar cualquier saldo mayor a 0
             total_cobrar_usd += saldo
     # Asegura que tasa_bcv sea float y no Response
     tasa_bcv = obtener_tasa_bcv()
@@ -335,22 +337,19 @@ def login_required(f):
     return decorated_function
 
 # --- Rutas protegidas ---
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    """Muestra el dashboard principal."""
-    try:
-        stats = obtener_estadisticas()
-        return render_template('dashboard.html', **stats)
-    except Exception as e:
-        flash(f'Error al cargar el dashboard: {str(e)}', 'error')
-        return redirect(url_for('index'))
-
 @app.route('/')
+@login_required
 def index():
-    if 'usuario' in session:
-        return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
+    stats = obtener_estadisticas()
+    try:
+        tasa_bcv = float(stats.get('tasa_bcv', 0))
+    except Exception:
+        tasa_bcv = 0
+    advertencia_tasa = None
+    if not tasa_bcv or tasa_bcv < 1:
+        advertencia_tasa = '¡Advertencia! No se ha podido obtener la tasa BCV actual.'
+    stats['tasa_bcv'] = tasa_bcv
+    return render_template('index.html', **stats, advertencia_tasa=advertencia_tasa)
 
 @app.route('/clientes')
 @login_required
@@ -374,9 +373,8 @@ def mostrar_clientes():
         facturas_cliente = [f for f in facturas.values() if f.get('cliente_id') == id_cliente]
         total_facturado = sum(float(f.get('total_usd', 0)) for f in facturas_cliente)
         total_abonado = sum(float(f.get('total_abonado', 0)) for f in facturas_cliente)
-        # Total por cobrar (de cuentas por cobrar)
-        cuenta = next((c for c in cuentas.values() if c.get('cliente_id') == id_cliente), None)
-        total_por_cobrar = float(cuenta.get('saldo_pendiente', 0)) if cuenta else 0
+        # Total por cobrar (diferencia entre total facturado y total abonado)
+        total_por_cobrar = max(0, total_facturado - total_abonado)
         clientes_totales[id_cliente] = {
             'total_facturado': total_facturado,
             'total_abonado': total_abonado,
@@ -767,12 +765,16 @@ def editar_factura(id):
             # Calcular total abonado y saldo pendiente
             total_abonado = sum(float(p['monto']) for p in factura['pagos'])
             factura['total_abonado'] = total_abonado
-            factura['saldo_pendiente'] = max(total_usd - total_abonado, 0)
-            # Actualizar estado
-            if total_abonado >= total_usd and total_usd > 0:
+            saldo_pendiente = factura.get('total_usd', 0) - total_abonado
+            
+            # Si el saldo pendiente es muy pequeño (menos de 0.01) o el total abonado es igual o mayor al total
+            if abs(saldo_pendiente) < 0.01 or total_abonado >= factura.get('total_usd', 0):
+                saldo_pendiente = 0
                 factura['estado'] = 'pagada'
             else:
                 factura['estado'] = 'pendiente'
+            
+            factura['saldo_pendiente'] = saldo_pendiente
             facturas[id] = factura
             if guardar_datos(ARCHIVO_FACTURAS, facturas):
                 flash('Factura actualizada exitosamente', 'success')
@@ -865,7 +867,16 @@ def nueva_factura():
             # Calcular total abonado y saldo pendiente
             total_abonado = sum(float(p['monto']) for p in pagos)
             factura['total_abonado'] = total_abonado
-            factura['saldo_pendiente'] = max(total_usd - total_abonado, 0)
+            saldo_pendiente = factura.get('total_usd', 0) - total_abonado
+            
+            # Si el saldo pendiente es muy pequeño (menos de 0.01) o el total abonado es igual o mayor al total
+            if abs(saldo_pendiente) < 0.01 or total_abonado >= factura.get('total_usd', 0):
+                saldo_pendiente = 0
+                factura['estado'] = 'pagada'
+            else:
+                factura['estado'] = 'pendiente'
+            
+            factura['saldo_pendiente'] = saldo_pendiente
             
             facturas = cargar_datos(ARCHIVO_FACTURAS)
             inventario = cargar_datos(ARCHIVO_INVENTARIO)
@@ -1475,37 +1486,59 @@ def reporte_clientes():
         
         # Procesar facturas
         for factura in facturas.values():
-            id_cliente = factura['cliente_id']
+            id_cliente = factura.get('cliente_id')
             if id_cliente in stats_clientes:
                 stats = stats_clientes[id_cliente]
                 stats['total_facturas'] += 1
-                total_facturado = float(factura.get('total', 0))
-                total_abonado = float(factura.get('total_abonado', 0))
-                total_por_cobrar = total_facturado - total_abonado
                 
+                # Obtener totales de la factura
+                total_facturado = float(factura.get('total_usd', 0))
+                total_abonado = float(factura.get('total_abonado', 0))
+                total_por_cobrar = max(0, total_facturado - total_abonado)
+                
+                # Actualizar estadísticas del cliente
                 stats['total_facturado'] += total_facturado
                 stats['total_abonado'] += total_abonado
                 stats['total_por_cobrar'] += total_por_cobrar
                 stats['total_compras'] += total_facturado
                 
-                fecha_factura = datetime.strptime(factura['fecha'], '%Y-%m-%d')
-                if not stats['ultima_compra'] or fecha_factura > datetime.strptime(stats['ultima_compra'], '%Y-%m-%d'):
-                    stats['ultima_compra'] = factura['fecha']
+                # Actualizar última compra
+                fecha_factura = factura.get('fecha')
+                if fecha_factura:
+                    if not stats['ultima_compra'] or fecha_factura > stats['ultima_compra']:
+                        stats['ultima_compra'] = fecha_factura
                 
+                # Actualizar totales generales
                 total_facturado_general += total_facturado
                 total_abonado_general += total_abonado
                 total_cobrar += total_por_cobrar
         
-        # Ordenar clientes por total de compras
+        # Ordenar clientes por total de compras (Top 10 Mejores Clientes)
         top_clientes = sorted(
             [stats for stats in stats_clientes.values() if stats['total_compras'] > 0],
             key=lambda x: x['total_compras'],
             reverse=True
         )[:10]
         
-        # Ordenar clientes por total por cobrar
+        # Ordenar clientes por total por cobrar (Top 5 Clientes con Mayor Cuenta por Cobrar)
+        # Solo incluir clientes que realmente tengan saldo pendiente significativo
+        peores_clientes = []
+        for stats in stats_clientes.values():
+            # Verificar si el cliente tiene facturas pendientes con saldo significativo
+            tiene_facturas_pendientes = False
+            for factura in facturas.values():
+                if (factura.get('cliente_id') == stats['id'] and 
+                    factura.get('estado') == 'pendiente' and 
+                    float(factura.get('saldo_pendiente', 0)) >= 0.01):  # Ignorar saldos menores a 1 centavo
+                    tiene_facturas_pendientes = True
+                    break
+            
+            if tiene_facturas_pendientes:
+                peores_clientes.append(stats)
+        
+        # Ordenar y limitar a 5 clientes
         peores_clientes = sorted(
-            [stats for stats in stats_clientes.values() if stats['total_por_cobrar'] > 0],
+            peores_clientes,
             key=lambda x: x['total_por_cobrar'],
             reverse=True
         )[:5]
@@ -1513,8 +1546,12 @@ def reporte_clientes():
         # Estadísticas de productos más comprados
         productos_stats = {}
         for factura in facturas.values():
-            for item in factura.get('items', []):
-                id_producto = item.get('id')
+            productos = factura.get('productos', [])
+            cantidades = factura.get('cantidades', [])
+            precios = factura.get('precios', [])
+            
+            for i in range(len(productos)):
+                id_producto = productos[i]
                 if id_producto in inventario:
                     if id_producto not in productos_stats:
                         productos_stats[id_producto] = {
@@ -1522,34 +1559,37 @@ def reporte_clientes():
                             'cantidad': 0,
                             'valor': 0
                         }
-                    cantidad = int(item.get('cantidad', 0))
-                    precio = float(item.get('precio', 0))
-                    productos_stats[id_producto]['cantidad'] += cantidad
-                    productos_stats[id_producto]['valor'] += cantidad * precio
+                    try:
+                        cantidad = int(cantidades[i])
+                        precio = float(precios[i])
+                        productos_stats[id_producto]['cantidad'] += cantidad
+                        productos_stats[id_producto]['valor'] += cantidad * precio
+                    except (ValueError, TypeError, IndexError):
+                        continue
         
-        # Ordenar productos por cantidad
+        # Ordenar productos por cantidad (Top 10 Productos Más Comprados)
         top_productos = sorted(
             productos_stats.values(),
             key=lambda x: x['cantidad'],
             reverse=True
         )[:10]
-    
+        
         return render_template('reporte_clientes.html',
-                clientes=clientes,
-                facturas=facturas,
-                inventario=inventario,
-                empresa=empresa,
-                tasa_bcv=tasa_bcv,
-                advertencia_tasa=advertencia_tasa,
-                total_clientes=total_clientes,
-                total_facturas=total_facturas,
-                total_facturado_general=total_facturado_general,
-                total_abonado_general=total_abonado_general,
-                total_cobrar=total_cobrar,
-                top_clientes=top_clientes,
-                peores_clientes=peores_clientes,
-                top_productos=top_productos
-            )
+            clientes=clientes,
+            facturas=facturas,
+            inventario=inventario,
+            empresa=empresa,
+            tasa_bcv=tasa_bcv,
+            advertencia_tasa=advertencia_tasa,
+            total_clientes=total_clientes,
+            total_facturas=total_facturas,
+            total_facturado_general=total_facturado_general,
+            total_abonado_general=total_abonado_general,
+            total_cobrar=total_cobrar,
+            top_clientes=top_clientes,
+            peores_clientes=peores_clientes,
+            top_productos=top_productos
+        )
     except Exception as e:
         print(f"Error en reporte_clientes: {e}")
         return str(e), 500
@@ -2158,15 +2198,17 @@ def ver_cotizacion(numero):
         return redirect(url_for('cotizaciones'))
 
 @app.route('/login', methods=['GET', 'POST'])
+@csrf.exempt
 def login():
     if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
+        username = request.form['username']
+        password = request.form['password']
+        
         if not username or not password:
             flash('Por favor ingrese usuario y contraseña', 'warning')
             return render_template('login.html')
+        
         if verify_password(username, password):
-            session.clear()  # Limpiar la sesión antes de iniciar
             session['usuario'] = username
             registrar_bitacora(username, 'Inicio de sesión', 'Inicio de sesión exitoso')
             flash('Bienvenido al sistema', 'success')
@@ -2181,7 +2223,7 @@ def login():
 def logout():
     usuario = session.get('usuario', 'desconocido')
     registrar_bitacora(usuario, 'Cierre de sesión', 'Sesión finalizada')
-    session.clear()
+    session.pop('usuario', None)
     flash('Sesión cerrada exitosamente', 'info')
     return redirect(url_for('login'))
 
@@ -2217,62 +2259,63 @@ def limpiar_bitacora():
 @login_required
 def registrar_pago(id):
     facturas = cargar_datos(ARCHIVO_FACTURAS)
-    factura = facturas.get(id)
-    if not factura:
-        flash('Factura no encontrada', 'danger')
+    if id not in facturas:
+        flash('Factura no encontrada', 'error')
         return redirect(url_for('mostrar_facturas'))
-
+    
     try:
+        factura = facturas[id]
         monto = float(request.form.get('monto_pago', 0))
+        if monto <= 0:
+            flash('El monto del pago debe ser mayor a $0.00', 'danger')
+            return redirect(url_for('ver_factura', id=id))
         moneda = request.form.get('moneda_pago', 'USD')
         metodo = request.form.get('metodo_pago', '')
         referencia = request.form.get('referencia_pago', '')
         banco = request.form.get('banco', '')
-        tasa_bcv = float(factura.get('tasa_bcv', 1.0))
         
-        # Convertir a USD si el pago es en Bs
-        monto_usd = monto if moneda == 'USD' else monto / tasa_bcv
+        # Convertir monto a USD si está en Bs
+        if moneda == 'Bs':
+            tasa_bcv = float(factura.get('tasa_bcv', 1))
+            monto = monto / tasa_bcv
         
-        # Manejar la captura de transacción si se subió una
-        captura_path = None
-        if 'captura_transaccion' in request.files:
-            captura = request.files['captura_transaccion']
-            if captura and captura.filename:
-                # Crear directorio si no existe
-                upload_dir = os.path.join(app.static_folder, 'capturas_transacciones')
-                os.makedirs(upload_dir, exist_ok=True)
-                
-                # Generar nombre único para el archivo
-                filename = secure_filename(f"{id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{captura.filename}")
-                captura_path = os.path.join('capturas_transacciones', filename)
-                captura.save(os.path.join(app.static_folder, captura_path))
-        
+        # Crear nuevo pago
         nuevo_pago = {
-            'id': str(uuid4()),
-            'monto': monto_usd,
+            'id': str(uuid.uuid4()),
+            'monto': monto,
             'moneda': moneda,
             'metodo': metodo,
             'referencia': referencia,
             'banco': banco,
-            'captura_path': captura_path,
+            'captura_path': None,
             'fecha': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         
-        if 'pagos' not in factura or not isinstance(factura['pagos'], list):
-            factura['pagos'] = []
+        # Procesar captura si existe
+        if 'captura' in request.files:
+            captura = request.files['captura']
+            if captura.filename:
+                filename = secure_filename(captura.filename)
+                captura_path = os.path.join('uploads', 'capturas', filename)
+                os.makedirs(os.path.dirname(captura_path), exist_ok=True)
+                captura.save(captura_path)
+                nuevo_pago['captura_path'] = captura_path
+        
         factura['pagos'].append(nuevo_pago)
         
         # Recalcular total abonado y saldo pendiente
         total_abonado = sum(float(p['monto']) for p in factura['pagos'])
         factura['total_abonado'] = total_abonado
-        factura['saldo_pendiente'] = max(factura.get('total_usd', 0) - total_abonado, 0)
+        saldo_pendiente = factura.get('total_usd', 0) - total_abonado
         
-        # Actualizar estado
-        if total_abonado >= factura.get('total_usd', 0) and factura.get('total_usd', 0) > 0:
+        # Si el saldo pendiente es muy pequeño (menos de 0.01) o el total abonado es igual o mayor al total
+        if abs(saldo_pendiente) < 0.01 or total_abonado >= factura.get('total_usd', 0):
+            saldo_pendiente = 0
             factura['estado'] = 'pagada'
         else:
             factura['estado'] = 'pendiente'
-            
+        
+        factura['saldo_pendiente'] = saldo_pendiente
         facturas[id] = factura
         guardar_datos(ARCHIVO_FACTURAS, facturas)
         flash('Pago registrado exitosamente.', 'success')
@@ -2284,7 +2327,6 @@ def registrar_pago(id):
 @login_required
 def eliminar_pago(id, pago_id):
     try:
-        # Cargar datos
         facturas = cargar_datos(ARCHIVO_FACTURAS)
         if id not in facturas:
             flash('Factura no encontrada', 'error')
@@ -2293,19 +2335,24 @@ def eliminar_pago(id, pago_id):
         factura = facturas[id]
         pagos = factura.get('pagos', [])
         
-        # Encontrar y eliminar el pago
         pago_encontrado = False
         for i, pago in enumerate(pagos):
             if str(pago.get('id', '')) == str(pago_id):
-                # Restar el monto del pago del total abonado
                 monto_pago = float(pago.get('monto', 0))
                 if pago.get('moneda') == 'Bs':
                     monto_pago = monto_pago / float(factura.get('tasa_bcv', 1))
                 
                 factura['total_abonado'] = float(factura.get('total_abonado', 0)) - monto_pago
-                factura['saldo_pendiente'] = float(factura.get('total_usd', 0)) - float(factura.get('total_abonado', 0))
+                saldo_pendiente = factura.get('total_usd', 0) - factura['total_abonado']
                 
-                # Eliminar el pago
+                # Si el saldo pendiente es muy pequeño (menos de 0.01) o el total abonado es igual o mayor al total
+                if abs(saldo_pendiente) < 0.01 or factura['total_abonado'] >= factura.get('total_usd', 0):
+                    saldo_pendiente = 0
+                    factura['estado'] = 'pagada'
+                else:
+                    factura['estado'] = 'pendiente'
+                
+                factura['saldo_pendiente'] = saldo_pendiente
                 pagos.pop(i)
                 pago_encontrado = True
                 break
@@ -2314,13 +2361,6 @@ def eliminar_pago(id, pago_id):
             flash('Pago no encontrado', 'error')
             return redirect(url_for('editar_factura', id=id))
         
-        # Actualizar estado de la factura
-        if factura['total_abonado'] >= factura.get('total_usd', 0) and factura.get('total_usd', 0) > 0:
-            factura['estado'] = 'pagada'
-        else:
-            factura['estado'] = 'pendiente'
-        
-        # Guardar cambios
         facturas[id] = factura
         if guardar_datos(ARCHIVO_FACTURAS, facturas):
             flash('Pago eliminado exitosamente', 'success')
@@ -2375,6 +2415,45 @@ def guardar_ubicacion_precisa():
             session['ubicacion_precisa'] = {'lat': lat, 'lon': lon, 'texto': ''}
         return jsonify({'status': 'ok'})
     return jsonify({'status': 'error'}), 400
+
+@app.route('/actualizar-tasa-bcv', methods=['POST'])
+@login_required
+def actualizar_tasa_bcv():
+    try:
+        # Intentar obtener la tasa del día
+        tasa = obtener_tasa_bcv_dia()
+        
+        if tasa is None or tasa <= 0:
+            # Si falla, intentar obtener la tasa del archivo
+            tasa = cargar_ultima_tasa_bcv()
+            if tasa is None or tasa <= 0:
+                return jsonify({
+                    'success': False, 
+                    'error': 'No se pudo obtener la tasa BCV. Por favor, intente más tarde.'
+                })
+        
+        # Guardar la nueva tasa
+        guardar_ultima_tasa_bcv(tasa)
+        
+        # Registrar en la bitácora
+        registrar_bitacora(
+            session.get('usuario', 'Sistema'),
+            'Actualización de Tasa BCV',
+            f'Nueva tasa: {tasa}'
+        )
+        
+        return jsonify({
+            'success': True,
+            'tasa': tasa,
+            'message': f'Tasa BCV actualizada exitosamente: {tasa}'
+        })
+        
+    except Exception as e:
+        print(f"Error al actualizar tasa BCV: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Error al actualizar la tasa BCV: {str(e)}'
+        })
 
 # --- Bloque para Ejecutar la Aplicación ---
 if __name__ == '__main__':

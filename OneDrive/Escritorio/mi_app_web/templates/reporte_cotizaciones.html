@@ -191,15 +191,15 @@
     <div class="container">
         <div class="page-header">
             <div class="row align-items-center">
-    <div class="col-md-8">
+                <div class="col-md-8">
                     <h2><i class="fas fa-chart-bar me-2"></i>Reporte de Cotizaciones</h2>
-    </div>
-    <div class="col-md-4 text-end">
-        <a href="{{ url_for('mostrar_cotizaciones') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver a Cotizaciones
-        </a>
-    </div>
-</div>
+                </div>
+                <div class="col-md-4 text-end">
+                    <a href="{{ url_for('mostrar_cotizaciones') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Volver a Cotizaciones
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="row mb-4">
@@ -222,43 +222,43 @@
                         </div>
                         <div class="stats-value">${{ '%.2f'|format(total_monto) }}</div>
                         <div class="stats-label">Monto Total</div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
         <div class="table-card">
             <div class="card-header">
                 <h4><i class="fas fa-list me-2"></i>Listado de Cotizaciones</h4>
             </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
                                 <th><i class="fas fa-hashtag me-2"></i>Número</th>
                                 <th><i class="fas fa-calendar me-2"></i>Fecha</th>
                                 <th><i class="fas fa-user me-2"></i>Cliente</th>
                                 <th><i class="fas fa-dollar-sign me-2"></i>Total</th>
                                 <th><i class="fas fa-clock me-2"></i>Validez</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cot in cotizaciones %}
-                    <tr>
-                        <td>{{ cot.numero_cotizacion }}</td>
-                        <td>{{ cot.fecha }}</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cot in cotizaciones %}
+                            <tr>
+                                <td>{{ cot.numero_cotizacion }}</td>
+                                <td>{{ cot.fecha }}</td>
                                 <td>{{ cot.cliente.nombre if cot.cliente and cot.cliente.nombre else 'No disponible' }}</td>
-                        <td>${{ '%.2f'|format(cot.total_usd|float) }}</td>
+                                <td>${{ '%.2f'|format(cot.total_usd|float) }}</td>
                                 <td>
                                     <span class="badge {% if cot.validez_dias and cot.validez_dias > 0 %}badge-success{% else %}badge-danger{% endif %}">
                                         {{ cot.validez_dias if cot.validez_dias else 'No disponible' }}
                                     </span>
                                 </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
