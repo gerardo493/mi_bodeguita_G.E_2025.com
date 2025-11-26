@@ -1,6 +1,7 @@
 // Servicio de sincronización con Firebase Firestore
 import { initializeApp } from 'firebase/app';
 import { getFirestore, doc, setDoc, getDoc, onSnapshot } from 'firebase/firestore';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
 // Configuración de Firebase
 // Se puede configurar desde localStorage o desde aquí directamente
@@ -41,8 +42,9 @@ const firebaseConfig = getFirebaseConfig();
 // Inicializar Firebase
 let app = null;
 let db = null;
+let auth = null;
 
-const initializeFirebase = () => {
+const initializeFirebase = async () => {
   try {
     const config = getFirebaseConfig();
     if (!config.apiKey || !config.projectId || config.apiKey === "TU_API_KEY") {
@@ -56,6 +58,17 @@ const initializeFirebase = () => {
     
     app = initializeApp(config);
     db = getFirestore(app);
+    auth = getAuth(app);
+    
+    // Intentar autenticación anónima (ayuda con las reglas)
+    try {
+      await signInAnonymously(auth);
+      console.log('✅ Autenticación anónima exitosa');
+    } catch (authError) {
+      console.warn('⚠️ No se pudo autenticar anónimamente:', authError.message);
+      // Continuar de todas formas, las reglas pueden permitir acceso sin auth
+    }
+    
     return true;
   } catch (error) {
     console.warn('Error al inicializar Firebase:', error.message);
@@ -67,10 +80,11 @@ const initializeFirebase = () => {
 initializeFirebase();
 
 // Función para reinicializar (útil cuando se actualiza la configuración)
-export const reinitializeFirebase = () => {
+export const reinitializeFirebase = async () => {
   app = null;
   db = null;
-  return initializeFirebase();
+  auth = null;
+  return await initializeFirebase();
 };
 
 // ID único para este dispositivo/usuario

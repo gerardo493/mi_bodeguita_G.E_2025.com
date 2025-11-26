@@ -27,7 +27,7 @@ const FirebaseConfig = ({ onClose }) => {
         }
     }, []);
 
-    const handleSave = () => {
+    const handleSave = async () => {
         // Validar que todos los campos estén llenos
         if (!config.apiKey || !config.projectId) {
             setError('Por favor, completa al menos API Key y Project ID');
@@ -39,7 +39,7 @@ const FirebaseConfig = ({ onClose }) => {
             localStorage.setItem('firebase-config', JSON.stringify(config));
             
             // Reinicializar Firebase con la nueva configuración
-            const reinitialized = reinitializeFirebase();
+            const reinitialized = await reinitializeFirebase();
             if (reinitialized) {
                 setSuccess(true);
                 setError('');
