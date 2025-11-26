@@ -1,0 +1,10 @@
+[build]
+  command = "cd \"OneDrive/Escritorio/mi bodeguita\" && npm install && npm run build"
+  publish = "OneDrive/Escritorio/mi bodeguita/dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = true
+
