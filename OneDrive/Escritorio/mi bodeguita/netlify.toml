@@ -1,6 +1,6 @@
 [build]
-  command = "npm run build"
-  publish = "dist"
+  command = "cd \"OneDrive/Escritorio/mi bodeguita\" && npm run build"
+  publish = "OneDrive/Escritorio/mi bodeguita/dist"
 
 [[redirects]]
   from = "/*"
