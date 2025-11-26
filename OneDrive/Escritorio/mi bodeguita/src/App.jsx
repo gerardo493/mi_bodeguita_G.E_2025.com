@@ -9,6 +9,7 @@ import StockMovementPage from './pages/StockMovementPage';
 import SuppliersPage from './pages/SuppliersPage';
 import FinancialReportsPage from './pages/FinancialReportsPage';
 import NotificationCenter from './components/NotificationCenter';
+import SyncStatus from './components/SyncStatus';
 import './App.css';
 
 function App() {
@@ -28,6 +29,8 @@ function App() {
       </Layout>
       {/* Notificaciones flotantes (se desvanecen automáticamente) */}
       <NotificationCenter />
+      {/* Indicador de estado de sincronización */}
+      <SyncStatus />
     </BrowserRouter>
   );
 }

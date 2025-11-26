@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Download, Upload, Save, Settings } from 'lucide-react';
+import { Download, Upload, Save, Settings, Cloud } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { exportData, importData } from '../services/backupService';
+import FirebaseConfig from '../components/FirebaseConfig';
 
 const SettingsPage = () => {
     const settings = useStore((state) => state.settings);
@@ -11,6 +12,7 @@ const SettingsPage = () => {
     
     const [localSettings, setLocalSettings] = useState(settings);
     const [isSaving, setIsSaving] = useState(false);
+    const [showFirebaseConfig, setShowFirebaseConfig] = useState(false);
     
     const handleSave = () => {
         updateSettings(localSettings);
@@ -57,6 +59,26 @@ const SettingsPage = () => {
                 </div>
             )}
             
+            {/* Sincronización en la Nube */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    <Cloud size={20} />
+                    Sincronización en la Nube
+                </h3>
+                <div className="space-y-4">
+                    <p className="text-sm text-gray-600">
+                        Sincroniza tus datos automáticamente con Firebase. Tus datos estarán disponibles en todos tus dispositivos y se guardarán de forma segura en la nube.
+                    </p>
+                    <button
+                        onClick={() => setShowFirebaseConfig(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        <Cloud size={18} />
+                        <span>Configurar Sincronización</span>
+                    </button>
+                </div>
+            </div>
+
             {/* Backup y Restauración */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -216,6 +238,10 @@ const SettingsPage = () => {
                     </button>
                 </div>
             </div>
+
+            {showFirebaseConfig && (
+                <FirebaseConfig onClose={() => setShowFirebaseConfig(false)} />
+            )}
         </div>
     );
 };

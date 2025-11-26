@@ -1,9 +1,110 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { firebaseService } from '../services/firebaseService';
+
+// Función para sincronizar con Firebase
+const syncToFirebase = async (state) => {
+    if (!firebaseService.isConfigured()) {
+        return;
+    }
+
+    try {
+        const dataToSync = {
+            products: state.products,
+            sales: state.sales,
+            customers: state.customers,
+            suppliers: state.suppliers,
+            coupons: state.coupons,
+            combos: state.combos,
+            cashRegisters: state.cashRegisters,
+            returns: state.returns,
+            stockTransfers: state.stockTransfers,
+            settings: state.settings,
+            exchangeRate: state.exchangeRate,
+            exchangeRateLastUpdate: state.exchangeRateLastUpdate,
+            saleCounter: state.saleCounter,
+            favoriteProducts: state.favoriteProducts,
+        };
+        
+        await firebaseService.saveToCloud(dataToSync);
+        return true;
+    } catch (error) {
+        console.error('Error al sincronizar con Firebase:', error);
+        return false;
+    }
+};
 
 export const useStore = create(
     persist(
         (set, get) => ({
+            // Estado de sincronización
+            syncStatus: {
+                isSyncing: false,
+                lastSync: null,
+                lastError: null,
+                isOnline: navigator.onLine,
+            },
+            
+            // Sincronizar con Firebase
+            syncToCloud: async () => {
+                const state = get();
+                set({ syncStatus: { ...state.syncStatus, isSyncing: true, lastError: null } });
+                
+                const success = await syncToFirebase(state);
+                
+                set({
+                    syncStatus: {
+                        ...state.syncStatus,
+                        isSyncing: false,
+                        lastSync: success ? new Date().toISOString() : state.syncStatus.lastSync,
+                        lastError: success ? null : 'Error al sincronizar',
+                        isOnline: navigator.onLine
+                    }
+                });
+                
+                return success;
+            },
+            
+            // Cargar desde Firebase
+            loadFromCloud: async () => {
+                const state = get();
+                set({ syncStatus: { ...state.syncStatus, isSyncing: true, lastError: null } });
+                
+                try {
+                    const cloudData = await firebaseService.loadFromCloud();
+                    if (cloudData) {
+                        get().importData(cloudData);
+                        set({
+                            syncStatus: {
+                                ...state.syncStatus,
+                                isSyncing: false,
+                                lastSync: new Date().toISOString(),
+                                isOnline: navigator.onLine
+                            }
+                        });
+                        return true;
+                    }
+                    set({ syncStatus: { ...state.syncStatus, isSyncing: false } });
+                    return false;
+                } catch (error) {
+                    set({
+                        syncStatus: {
+                            ...state.syncStatus,
+                            isSyncing: false,
+                            lastError: error.message,
+                            isOnline: navigator.onLine
+                        }
+                    });
+                    return false;
+                }
+            },
+            
+            // Actualizar estado de conexión
+            updateConnectionStatus: () => {
+                set((state) => ({
+                    syncStatus: { ...state.syncStatus, isOnline: navigator.onLine }
+                }));
+            },
             // Inventario
             products: [],
             addProduct: (product) => {
@@ -30,6 +131,9 @@ export const useStore = create(
                 if (product.stock > 0) {
                     get().addStockMovement(newProduct.id, product.stock, 'initial', 'Stock inicial');
                 }
+                
+                // Sincronizar con Firebase (asíncrono, no bloquea)
+                setTimeout(() => get().syncToCloud(), 500);
             },
             updateProduct: (id, updatedProduct) => {
                 const exchangeRate = get().exchangeRate;
@@ -266,9 +370,12 @@ export const useStore = create(
 
             // Cupones
             coupons: [],
-            addCoupon: (coupon) => set((state) => ({ 
-                coupons: [...state.coupons, { ...coupon, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] 
-            })),
+            addCoupon: (coupon) => {
+                set((state) => ({ 
+                    coupons: [...state.coupons, { ...coupon, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] 
+                }));
+                setTimeout(() => get().syncToCloud(), 500);
+            },
             updateCoupon: (id, updatedCoupon) => set((state) => ({
                 coupons: state.coupons.map((c) => c.id === id ? { ...c, ...updatedCoupon } : c)
             })),
@@ -302,9 +409,12 @@ export const useStore = create(
             // Clientes
             customers: [],
             selectedCustomer: null,
-            addCustomer: (customer) => set((state) => ({ 
-                customers: [...state.customers, { ...customer, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] 
-            })),
+            addCustomer: (customer) => {
+                set((state) => ({ 
+                    customers: [...state.customers, { ...customer, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] 
+                }));
+                setTimeout(() => get().syncToCloud(), 500);
+            },
             updateCustomer: (id, updatedCustomer) => set((state) => ({
                 customers: state.customers.map((c) => c.id === id ? { ...c, ...updatedCustomer, updatedAt: new Date().toISOString() } : c)
             })),
@@ -313,9 +423,12 @@ export const useStore = create(
 
             // Proveedores
             suppliers: [],
-            addSupplier: (supplier) => set((state) => ({ 
-                suppliers: [...state.suppliers, { ...supplier, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] 
-            })),
+            addSupplier: (supplier) => {
+                set((state) => ({ 
+                    suppliers: [...state.suppliers, { ...supplier, id: crypto.randomUUID(), createdAt: new Date().toISOString() }] 
+                }));
+                setTimeout(() => get().syncToCloud(), 500);
+            },
             updateSupplier: (id, updatedSupplier) => set((state) => ({
                 suppliers: state.suppliers.map((s) => s.id === id ? { ...s, ...updatedSupplier } : s)
             })),
@@ -339,6 +452,9 @@ export const useStore = create(
                     sales: [saleWithNumber, ...state.sales],
                     saleCounter: state.saleCounter + 1
                 }));
+                
+                // Sincronizar con Firebase (asíncrono, no bloquea)
+                setTimeout(() => get().syncToCloud(), 500);
             },
             deleteSale: (id) => {
                 const state = get();
@@ -462,9 +578,12 @@ export const useStore = create(
                 scalePort: '',
                 voiceSearchEnabled: false
             },
-            updateSettings: (newSettings) => set((state) => ({
-                settings: { ...state.settings, ...newSettings }
-            })),
+            updateSettings: (newSettings) => {
+                set((state) => ({
+                    settings: { ...state.settings, ...newSettings }
+                }));
+                setTimeout(() => get().syncToCloud(), 500);
+            },
 
             // Usuario actual (para auditoría)
             currentUser: { id: 'default', name: 'Usuario' },
@@ -498,6 +617,13 @@ export const useStore = create(
                 if (data.returns) set({ returns: data.returns });
                 if (data.stockTransfers) set({ stockTransfers: data.stockTransfers });
                 if (data.settings) set({ settings: { ...get().settings, ...data.settings } });
+                if (data.exchangeRate !== undefined) set({ exchangeRate: data.exchangeRate });
+                if (data.exchangeRateLastUpdate !== undefined) set({ exchangeRateLastUpdate: data.exchangeRateLastUpdate });
+                if (data.saleCounter !== undefined) set({ saleCounter: data.saleCounter });
+                if (data.favoriteProducts) set({ favoriteProducts: data.favoriteProducts });
+                
+                // Sincronizar con Firebase después de importar
+                setTimeout(() => get().syncToCloud(), 1000);
             },
         }),
         {
