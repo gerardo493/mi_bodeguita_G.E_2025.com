@@ -27,12 +27,12 @@ const getFirebaseConfig = () => {
 
   // Configuración por defecto (debes reemplazar con tus credenciales)
   return {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROJECT_ID.firebaseapp.com",
-    projectId: "TU_PROJECT_ID",
-    storageBucket: "TU_PROJECT_ID.appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
+    apiKey: "AIzaSyDTwwSsTo169ExWOAZAJ4Thd8rC_887kGo",
+    authDomain: "mi-bodeguita-624e2.firebaseapp.com",
+    projectId: "mi-bodeguita-624e2",
+    storageBucket: "mi-bodeguita-624e2.firebasestorage.app",
+    messagingSenderId: "840086476676",
+    appId: "1:840086476676:web:2923216f279f2e58adafd1"
   };
 };
 
@@ -45,7 +45,7 @@ let db = null;
 const initializeFirebase = () => {
   try {
     const config = getFirebaseConfig();
-    if (config.apiKey === "TU_API_KEY" || !config.apiKey || !config.projectId) {
+    if (!config.apiKey || !config.projectId || config.apiKey === "TU_API_KEY") {
       return false;
     }
     
